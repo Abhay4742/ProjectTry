@@ -12,9 +12,21 @@ const ThemeToggle = () => {
       type="button"
     >
       {isDarkMode ? (
-        <span className="theme-icon">☀️</span>
+        <img 
+          src="/src/assets/sun-icon.svg" 
+          alt="Light mode" 
+          className="theme-icon"
+          width="18"
+          height="18"
+        />
       ) : (
-        <span className="theme-icon">🌙</span>
+        <img 
+          src="/src/assets/moon-icon.svg" 
+          alt="Dark mode" 
+          className="theme-icon"
+          width="18"
+          height="18"
+        />
       )}
     </button>
   )
