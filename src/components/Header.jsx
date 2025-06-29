@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 
-const Header = ({ searchTerm, onSearchChange, onCreateModule, onAddResource }) => {
+const Header = ({ searchTerm, onSearchChange, onCreateModule, onCreateStandaloneItem }) => {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -11,9 +11,17 @@ const Header = ({ searchTerm, onSearchChange, onCreateModule, onAddResource }) =
       }
     }
 
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setShowDropdown(false)
+      }
+    }
+
     document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEscape)
     }
   }, [])
 
@@ -27,12 +35,12 @@ const Header = ({ searchTerm, onSearchChange, onCreateModule, onAddResource }) =
   }
 
   const handleAddLink = () => {
-    onAddResource('link')
+    onCreateStandaloneItem('link')
     setShowDropdown(false)
   }
 
   const handleUploadFile = () => {
-    onAddResource('file')
+    onCreateStandaloneItem('file')
     setShowDropdown(false)
   }
 

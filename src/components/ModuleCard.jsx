@@ -10,7 +10,8 @@ const ModuleCard = ({
   onDelete, 
   onAddResource, 
   onDeleteResource,
-  onMove 
+  onMove,
+  onDropItem
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
@@ -19,13 +20,17 @@ const ModuleCard = ({
   const dragRef = useRef(null)
 
   const [{ handlerId }, drop] = useDrop({
-    accept: 'module',
+    accept: ['module', 'standalone-item'],
     collect(monitor) {
       return {
         handlerId: monitor.getHandlerId(),
       }
     },
     hover(item, monitor) {
+      if (item.type === 'standalone-item') {
+        return // Don't handle hover for standalone items
+      }
+
       if (!ref.current) {
         return
       }
@@ -52,6 +57,11 @@ const ModuleCard = ({
       onMove(dragIndex, hoverIndex)
       item.index = hoverIndex
     },
+    drop(item, monitor) {
+      if (item.type === 'standalone-item') {
+        onDropItem(item.id, module.id)
+      }
+    },
   })
 
   const [{ isDragging }, drag, preview] = useDrag({
@@ -64,9 +74,7 @@ const ModuleCard = ({
     }),
   })
 
-  // Connect drag to the drag handle only
   drag(dragRef)
-  // Connect drop to the entire card
   drop(ref)
 
   const opacity = isDragging ? 0.4 : 1
@@ -147,7 +155,7 @@ const ModuleCard = ({
           >
             ▼
           </button>
-          <div style={{ position: 'relative' }}>
+          <div className="menu-container">
             <button 
               className="menu-button"
               onClick={(e) => {
@@ -182,46 +190,15 @@ const ModuleCard = ({
           )}
           
           {(!module.resources || module.resources.length === 0) && (
-            <p style={{ 
-              textAlign: 'center', 
-              color: '#6c757d', 
-              margin: '20px 0',
-              fontStyle: 'italic'
-            }}>
-              No content added to this module yet.
+            <p className="empty-module-message">
+              No content added to this module yet. Drag items here or use the button below.
             </p>
           )}
           
-          <div style={{ position: 'relative', textAlign: 'center', marginTop: '20px' }}>
+          <div className="add-item-container">
             <button 
               className="add-resource-button"
               onClick={() => setShowAddMenu(!showAddMenu)}
-              style={{
-                background: 'white',
-                border: '2px dashed #dee2e6',
-                borderRadius: '8px',
-                padding: '16px',
-                cursor: 'pointer',
-                color: '#6c757d',
-                fontSize: '14px',
-                fontWeight: '500',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                width: '100%',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.borderColor = '#0d6efd'
-                e.target.style.backgroundColor = '#f8f9fa'
-                e.target.style.color = '#0d6efd'
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.borderColor = '#dee2e6'
-                e.target.style.backgroundColor = 'white'
-                e.target.style.color = '#6c757d'
-              }}
             >
               <span>+</span>
               Add item

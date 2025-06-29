@@ -4,9 +4,11 @@ import ModuleList from './ModuleList'
 import EmptyState from './EmptyState'
 import ModuleModal from './ModuleModal'
 import ResourceModal from './ResourceModal'
+import StandaloneItem from './StandaloneItem'
 
 const CourseBuilder = () => {
   const [modules, setModules] = useState([])
+  const [standaloneItems, setStandaloneItems] = useState([]) // Items not in modules
   const [searchTerm, setSearchTerm] = useState('')
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false)
   const [isResourceModalOpen, setIsResourceModalOpen] = useState(false)
@@ -47,24 +49,14 @@ const CourseBuilder = () => {
     setEditingModule(null)
   }
 
-  const handleAddResourceFromHeader = (type) => {
-    if (modules.length === 0) {
-      // If no modules exist, create one first
-      const newModule = {
-        id: Date.now().toString(),
-        name: 'New Module',
-        resources: []
-      }
-      setModules([newModule])
-      setSelectedModuleId(newModule.id)
-    } else {
-      // Use the first module
-      setSelectedModuleId(modules[0].id)
-    }
+  // Create standalone item from header
+  const handleCreateStandaloneItem = (type) => {
     setResourceType(type)
+    setSelectedModuleId(null) // No module selected - creating standalone
     setIsResourceModalOpen(true)
   }
 
+  // Add resource to specific module
   const handleAddResource = (moduleId, type) => {
     setSelectedModuleId(moduleId)
     setResourceType(type)
@@ -78,11 +70,17 @@ const CourseBuilder = () => {
       ...resourceData
     }
 
-    setModules(modules.map(module => 
-      module.id === selectedModuleId
-        ? { ...module, resources: [...module.resources, newResource] }
-        : module
-    ))
+    if (selectedModuleId) {
+      // Add to specific module
+      setModules(modules.map(module => 
+        module.id === selectedModuleId
+          ? { ...module, resources: [...module.resources, newResource] }
+          : module
+      ))
+    } else {
+      // Create as standalone item
+      setStandaloneItems([...standaloneItems, newResource])
+    }
 
     setIsResourceModalOpen(false)
     setSelectedModuleId(null)
@@ -96,6 +94,10 @@ const CourseBuilder = () => {
     ))
   }
 
+  const handleDeleteStandaloneItem = (itemId) => {
+    setStandaloneItems(standaloneItems.filter(item => item.id !== itemId))
+  }
+
   const handleMoveModule = (dragIndex, hoverIndex) => {
     const draggedModule = modules[dragIndex]
     const newModules = [...modules]
@@ -104,14 +106,28 @@ const CourseBuilder = () => {
     setModules(newModules)
   }
 
-  // Filter modules based on search term
+  // Handle dropping standalone item into module
+  const handleDropItemIntoModule = (itemId, moduleId) => {
+    const item = standaloneItems.find(item => item.id === itemId)
+    if (item) {
+      // Add item to module
+      setModules(modules.map(module => 
+        module.id === moduleId
+          ? { ...module, resources: [...module.resources, item] }
+          : module
+      ))
+      // Remove from standalone items
+      setStandaloneItems(standaloneItems.filter(item => item.id !== itemId))
+    }
+  }
+
+  // Filter modules and standalone items based on search term
   const filteredModules = modules.filter(module => {
     if (!searchTerm.trim()) return true
     
     const searchLower = searchTerm.toLowerCase()
     const moduleNameMatch = module.name.toLowerCase().includes(searchLower)
     
-    // Also search in resources
     const resourceMatch = module.resources?.some(resource => 
       resource.name.toLowerCase().includes(searchLower) ||
       (resource.url && resource.url.toLowerCase().includes(searchLower)) ||
@@ -121,18 +137,30 @@ const CourseBuilder = () => {
     return moduleNameMatch || resourceMatch
   })
 
+  const filteredStandaloneItems = standaloneItems.filter(item => {
+    if (!searchTerm.trim()) return true
+    
+    const searchLower = searchTerm.toLowerCase()
+    return item.name.toLowerCase().includes(searchLower) ||
+           (item.url && item.url.toLowerCase().includes(searchLower)) ||
+           (item.fileName && item.fileName.toLowerCase().includes(searchLower))
+  })
+
+  const hasContent = modules.length > 0 || standaloneItems.length > 0
+  const hasFilteredContent = filteredModules.length > 0 || filteredStandaloneItems.length > 0
+
   return (
     <div className="course-builder">
       <Header 
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         onCreateModule={handleCreateModule}
-        onAddResource={handleAddResourceFromHeader}
+        onCreateStandaloneItem={handleCreateStandaloneItem}
       />
 
-      {modules.length === 0 ? (
+      {!hasContent ? (
         <EmptyState onCreateModule={handleCreateModule} />
-      ) : filteredModules.length === 0 ? (
+      ) : !hasFilteredContent ? (
         <div className="empty-state">
           <div className="empty-state-icon">🔍</div>
           <h2 className="empty-state-title">No results found</h2>
@@ -144,14 +172,34 @@ const CourseBuilder = () => {
           </button>
         </div>
       ) : (
-        <ModuleList
-          modules={filteredModules}
-          onEditModule={handleEditModule}
-          onDeleteModule={handleDeleteModule}
-          onAddResource={handleAddResource}
-          onDeleteResource={handleDeleteResource}
-          onMoveModule={handleMoveModule}
-        />
+        <div className="content-area">
+          {/* Standalone Items */}
+          {filteredStandaloneItems.length > 0 && (
+            <div className="standalone-items">
+              <h3 className="standalone-items-title">Items to be added to modules:</h3>
+              <div className="standalone-items-list">
+                {filteredStandaloneItems.map(item => (
+                  <StandaloneItem
+                    key={item.id}
+                    item={item}
+                    onDelete={handleDeleteStandaloneItem}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Modules */}
+          <ModuleList
+            modules={filteredModules}
+            onEditModule={handleEditModule}
+            onDeleteModule={handleDeleteModule}
+            onAddResource={handleAddResource}
+            onDeleteResource={handleDeleteResource}
+            onMoveModule={handleMoveModule}
+            onDropItem={handleDropItemIntoModule}
+          />
+        </div>
       )}
 
       {isModuleModalOpen && (
