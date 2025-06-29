@@ -279,6 +279,7 @@ body {
   border-radius: 12px;
   overflow: hidden;
   transition: box-shadow 0.2s ease;
+  position: relative; /* Important for containing absolute positioned children */
 }
 
 .module-card:hover {
@@ -376,6 +377,7 @@ body {
 .module-content {
   padding: 20px;
   background-color: #f8f9fa;
+  position: relative; /* Important for containing absolute positioned children */
 }
 
 .module-resources {
@@ -496,6 +498,8 @@ body {
   position: relative;
   text-align: center;
   margin-top: 20px;
+  display: inline-block; /* Changed from block to inline-block */
+  width: auto; /* Allow natural width */
 }
 
 .add-resource-button {
@@ -521,11 +525,11 @@ body {
   color: #0d6efd;
 }
 
-/* Add Item Dropdown - positioned closer to the right */
+/* Add Item Dropdown - positioned to the right of the button */
 .add-item-dropdown {
   position: absolute;
   top: 0;
-  left: calc(100% + 4px); /* Reduced from 8px to 4px for closer positioning */
+  left: calc(100% + 8px); /* Position to the right of the button */
   background: white;
   border: 1px solid #dee2e6;
   border-radius: 8px;
@@ -534,12 +538,19 @@ body {
   min-width: 140px;
   padding: 4px 0;
   animation: fadeInRight 0.2s ease;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Fallback positioning if dropdown would go outside viewport */
+.add-item-dropdown.position-left {
+  left: auto;
+  right: calc(100% + 8px);
 }
 
 @keyframes fadeInRight {
   from {
     opacity: 0;
-    transform: translateX(-4px); /* Reduced from -8px to -4px */
+    transform: translateX(-8px);
   }
   to {
     opacity: 1;
@@ -845,5 +856,6 @@ body {
     left: 0;
     right: 0;
     margin-top: 4px;
+    left: calc(100% + 8px); /* Keep to the right even on mobile for better UX */
   }
 }
