@@ -6,6 +6,7 @@ import DropdownMenu from './DropdownMenu'
 const ModuleCard = ({ 
   module, 
   index, 
+  isActive,
   onEdit, 
   onDelete, 
   onAddResource, 
@@ -165,9 +166,10 @@ const ModuleCard = ({
   return (
     <div 
       ref={ref} 
-      className="module-card" 
+      className={`module-card ${isActive ? 'active' : ''}`}
       style={{ opacity }}
       data-handler-id={handlerId}
+      data-module-id={module.id}
     >
       <div className="module-header">
         <div className="module-info" onClick={() => setIsExpanded(!isExpanded)}>

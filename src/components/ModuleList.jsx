@@ -3,6 +3,7 @@ import ModuleCard from './ModuleCard'
 
 const ModuleList = ({ 
   modules, 
+  activeModuleId,
   onEditModule, 
   onDeleteModule, 
   onAddResource, 
@@ -19,6 +20,7 @@ const ModuleList = ({
           key={module.id}
           module={module}
           index={index}
+          isActive={activeModuleId === module.id}
           onEdit={onEditModule}
           onDelete={onDeleteModule}
           onAddResource={onAddResource}

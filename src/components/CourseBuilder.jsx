@@ -5,6 +5,7 @@ import EmptyState from './EmptyState'
 import ModuleModal from './ModuleModal'
 import ResourceModal from './ResourceModal'
 import StandaloneItem from './StandaloneItem'
+import CourseOutline from './CourseOutline'
 
 const CourseBuilder = () => {
   const [modules, setModules] = useState([])
@@ -16,6 +17,7 @@ const CourseBuilder = () => {
   const [selectedModuleId, setSelectedModuleId] = useState(null)
   const [resourceType, setResourceType] = useState('link')
   const [isStandaloneMode, setIsStandaloneMode] = useState(false)
+  const [activeModuleId, setActiveModuleId] = useState(null)
 
   const handleCreateModule = () => {
     setEditingModule(null)
@@ -29,6 +31,9 @@ const CourseBuilder = () => {
 
   const handleDeleteModule = (moduleId) => {
     setModules(modules.filter(m => m.id !== moduleId))
+    if (activeModuleId === moduleId) {
+      setActiveModuleId(null)
+    }
   }
 
   const handleSaveModule = (moduleData) => {
@@ -191,6 +196,16 @@ const CourseBuilder = () => {
     }))
   }
 
+  // Handle outline navigation
+  const handleOutlineClick = (moduleId) => {
+    setActiveModuleId(moduleId)
+    // Scroll to module
+    const moduleElement = document.querySelector(`[data-module-id="${moduleId}"]`)
+    if (moduleElement) {
+      moduleElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   // Filter modules based on search term
   const filteredModules = modules.filter(module => {
     if (!searchTerm.trim()) return true
@@ -217,57 +232,72 @@ const CourseBuilder = () => {
            (item.fileName && item.fileName.toLowerCase().includes(searchLower))
   })
 
+  // Show sidebar only when there are multiple modules
+  const showSidebar = modules.length > 1
+
   return (
-    <div className="course-builder">
-      <Header 
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        onCreateModule={handleCreateModule}
-        onAddResource={handleAddResourceFromHeader}
-      />
-
-      {/* Standalone Items Section */}
-      {standaloneItems.length > 0 && (
-        <div className="standalone-items-section">
-          <h3 className="standalone-items-title">Items to be added to modules</h3>
-          <div className="standalone-items-list">
-            {filteredStandaloneItems.map(item => (
-              <StandaloneItem
-                key={item.id}
-                item={item}
-                onDelete={() => handleDeleteStandaloneItem(item.id)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {modules.length === 0 ? (
-        <EmptyState onCreateModule={handleCreateModule} />
-      ) : filteredModules.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">🔍</div>
-          <h2 className="empty-state-title">No results found</h2>
-          <p className="empty-state-description">
-            Try adjusting your search terms or create a new module
-          </p>
-          <button className="empty-state-button" onClick={handleCreateModule}>
-            Create new module
-          </button>
-        </div>
-      ) : (
-        <ModuleList
-          modules={filteredModules}
-          onEditModule={handleEditModule}
-          onDeleteModule={handleDeleteModule}
-          onAddResource={handleAddResource}
-          onDeleteResource={handleDeleteResource}
-          onMoveModule={handleMoveModule}
-          onMoveResource={handleMoveResource}
-          onDropItem={handleDropItemToModule}
-          onMoveResourceBetweenModules={handleMoveResourceBetweenModules}
+    <div className={`course-builder ${showSidebar ? 'with-sidebar' : ''}`}>
+      {/* Course Outline Sidebar - Only show when there are multiple modules */}
+      {showSidebar && (
+        <CourseOutline
+          modules={modules}
+          activeModuleId={activeModuleId}
+          onModuleClick={handleOutlineClick}
         />
       )}
+
+      <div className={`course-content ${showSidebar ? '' : 'full-width'}`}>
+        <Header 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          onCreateModule={handleCreateModule}
+          onAddResource={handleAddResourceFromHeader}
+        />
+
+        {/* Standalone Items Section */}
+        {standaloneItems.length > 0 && (
+          <div className="standalone-items-section">
+            <h3 className="standalone-items-title">Items to be added to modules</h3>
+            <div className="standalone-items-list">
+              {filteredStandaloneItems.map(item => (
+                <StandaloneItem
+                  key={item.id}
+                  item={item}
+                  onDelete={() => handleDeleteStandaloneItem(item.id)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {modules.length === 0 ? (
+          <EmptyState onCreateModule={handleCreateModule} />
+        ) : filteredModules.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon">🔍</div>
+            <h2 className="empty-state-title">No results found</h2>
+            <p className="empty-state-description">
+              Try adjusting your search terms or create a new module
+            </p>
+            <button className="empty-state-button" onClick={handleCreateModule}>
+              Create new module
+            </button>
+          </div>
+        ) : (
+          <ModuleList
+            modules={filteredModules}
+            activeModuleId={activeModuleId}
+            onEditModule={handleEditModule}
+            onDeleteModule={handleDeleteModule}
+            onAddResource={handleAddResource}
+            onDeleteResource={handleDeleteResource}
+            onMoveModule={handleMoveModule}
+            onMoveResource={handleMoveResource}
+            onDropItem={handleDropItemToModule}
+            onMoveResourceBetweenModules={handleMoveResourceBetweenModules}
+          />
+        )}
+      </div>
 
       {isModuleModalOpen && (
         <ModuleModal
