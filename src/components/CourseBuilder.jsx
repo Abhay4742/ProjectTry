@@ -237,15 +237,6 @@ const CourseBuilder = () => {
 
   return (
     <div className={`course-builder ${showSidebar ? 'with-sidebar' : ''}`}>
-      {/* Course Outline Sidebar - Only show when there are multiple modules */}
-      {showSidebar && (
-        <CourseOutline
-          modules={modules}
-          activeModuleId={activeModuleId}
-          onModuleClick={handleOutlineClick}
-        />
-      )}
-
       <div className={`course-content ${showSidebar ? '' : 'full-width'}`}>
         <Header 
           searchTerm={searchTerm}
@@ -298,6 +289,15 @@ const CourseBuilder = () => {
           />
         )}
       </div>
+
+      {/* Course Outline Sidebar - Only show when there are multiple modules */}
+      {showSidebar && (
+        <CourseOutline
+          modules={modules}
+          activeModuleId={activeModuleId}
+          onModuleClick={handleOutlineClick}
+        />
+      )}
 
       {isModuleModalOpen && (
         <ModuleModal

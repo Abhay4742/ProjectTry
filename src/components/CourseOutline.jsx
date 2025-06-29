@@ -5,7 +5,7 @@ const CourseOutline = ({ modules, activeModuleId, onModuleClick }) => {
     <div className="course-outline">
       <div className="course-outline-header">
         <div className="course-outline-indicator"></div>
-        <h3 className="course-outline-title">Introduction to Trigonometry</h3>
+        <h3 className="course-outline-title">Course outline</h3>
       </div>
       <ul className="course-outline-list">
         {modules.map((module) => (
