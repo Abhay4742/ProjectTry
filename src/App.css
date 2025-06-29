@@ -170,8 +170,11 @@
   font-size: 16px;
 }
 
+/* CRITICAL: Header Add Dropdown - Fixed positioning and z-index */
 .add-dropdown {
   position: relative;
+  /* CRITICAL: High z-index to ensure dropdown appears above everything */
+  z-index: 10000;
 }
 
 .add-button {
@@ -196,6 +199,11 @@
 .dropdown-arrow {
   font-size: 10px;
   margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+
+.add-button:hover .dropdown-arrow {
+  transform: rotate(180deg);
 }
 
 /* Empty State */
@@ -731,7 +739,7 @@
   cursor: not-allowed;
 }
 
-/* CRITICAL: Three Dots Dropdown Menu - MAXIMUM z-index and proper positioning */
+/* CRITICAL: Header and Three Dots Dropdown Menu - MAXIMUM z-index and proper positioning */
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -750,14 +758,23 @@
   /* CRITICAL: Force the dropdown to appear above all content */
   transform: translateZ(0);
   will-change: transform;
-  /* CRITICAL: Ensure dropdown appears outside module boundaries */
-  position: fixed;
-  /* We'll use JavaScript to position this correctly */
+}
+
+/* Special styling for header dropdown */
+.add-dropdown .dropdown-menu {
+  /* CRITICAL: Position dropdown below the add button */
+  top: calc(100% + 4px);
+  right: 0;
+  left: auto;
+  /* CRITICAL: Ensure it appears above everything */
+  z-index: 999999;
+  /* Enhanced styling for header dropdown */
+  border: 2px solid #dc3545;
+  box-shadow: 0 12px 35px rgba(220, 53, 69, 0.15);
 }
 
 /* Alternative positioning for dropdown menu */
 .dropdown-menu.positioned {
-  position: absolute;
   position: fixed;
 }
 
@@ -797,6 +814,17 @@
 
 .dropdown-item.danger:hover {
   background-color: #f8d7da;
+}
+
+/* Special styling for header dropdown items */
+.add-dropdown .dropdown-item {
+  font-weight: 500;
+  padding: 10px 16px;
+}
+
+.add-dropdown .dropdown-item:hover {
+  background-color: #dc3545;
+  color: white;
 }
 
 /* Drag and Drop */
@@ -880,5 +908,12 @@
     right: 0;
     margin-top: 4px;
     left: calc(100% + 8px);
+  }
+
+  /* Header dropdown positioning on mobile */
+  .add-dropdown .dropdown-menu {
+    right: 0;
+    left: auto;
+    width: 200px;
   }
 }

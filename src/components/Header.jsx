@@ -25,21 +25,33 @@ const Header = ({ searchTerm, onSearchChange, onCreateModule, onAddResource }) =
     }
   }, [])
 
-  const handleAddClick = () => {
+  const handleAddClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Header Add button clicked, current dropdown state:', showDropdown)
     setShowDropdown(!showDropdown)
   }
 
-  const handleCreateModule = () => {
+  const handleCreateModule = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Create module clicked from header')
     onCreateModule()
     setShowDropdown(false)
   }
 
-  const handleAddLink = () => {
+  const handleAddLink = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Add link clicked from header')
     onAddResource('link')
     setShowDropdown(false)
   }
 
-  const handleUploadFile = () => {
+  const handleUploadFile = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Upload file clicked from header')
     onAddResource('file')
     setShowDropdown(false)
   }
@@ -59,22 +71,38 @@ const Header = ({ searchTerm, onSearchChange, onCreateModule, onAddResource }) =
           />
         </div>
         <div className="add-dropdown" ref={dropdownRef}>
-          <button className="add-button" onClick={handleAddClick}>
+          <button 
+            className="add-button" 
+            onClick={handleAddClick}
+            type="button"
+          >
             <span>+</span>
             Add
             <span className="dropdown-arrow">▼</span>
           </button>
           {showDropdown && (
             <div className="dropdown-menu">
-              <button className="dropdown-item" onClick={handleCreateModule}>
+              <button 
+                className="dropdown-item" 
+                onClick={handleCreateModule}
+                type="button"
+              >
                 <span>📄</span>
                 Create module
               </button>
-              <button className="dropdown-item" onClick={handleAddLink}>
+              <button 
+                className="dropdown-item" 
+                onClick={handleAddLink}
+                type="button"
+              >
                 <span>🔗</span>
                 Add a link
               </button>
-              <button className="dropdown-item" onClick={handleUploadFile}>
+              <button 
+                className="dropdown-item" 
+                onClick={handleUploadFile}
+                type="button"
+              >
                 <span>📁</span>
                 Upload
               </button>
