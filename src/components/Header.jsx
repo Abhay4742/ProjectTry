@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import ThemeToggle from './ThemeToggle'
 
 const Header = ({ searchTerm, onSearchChange, onCreateModule, onAddResource }) => {
   const [showDropdown, setShowDropdown] = useState(false)
@@ -70,44 +71,47 @@ const Header = ({ searchTerm, onSearchChange, onCreateModule, onAddResource }) =
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
-        <div className="add-dropdown" ref={dropdownRef}>
-          <button 
-            className="add-button" 
-            onClick={handleAddClick}
-            type="button"
-          >
-            <span>+</span>
-            Add
-            <span className="dropdown-arrow">▼</span>
-          </button>
-          {showDropdown && (
-            <div className="dropdown-menu">
-              <button 
-                className="dropdown-item" 
-                onClick={handleCreateModule}
-                type="button"
-              >
-                <span>📄</span>
-                Create module
-              </button>
-              <button 
-                className="dropdown-item" 
-                onClick={handleAddLink}
-                type="button"
-              >
-                <span>🔗</span>
-                Add a link
-              </button>
-              <button 
-                className="dropdown-item" 
-                onClick={handleUploadFile}
-                type="button"
-              >
-                <span>📁</span>
-                Upload
-              </button>
-            </div>
-          )}
+        <div className="header-buttons">
+          <ThemeToggle />
+          <div className="add-dropdown" ref={dropdownRef}>
+            <button 
+              className="add-button" 
+              onClick={handleAddClick}
+              type="button"
+            >
+              <span>+</span>
+              Add
+              <span className="dropdown-arrow">▼</span>
+            </button>
+            {showDropdown && (
+              <div className="dropdown-menu">
+                <button 
+                  className="dropdown-item" 
+                  onClick={handleCreateModule}
+                  type="button"
+                >
+                  <span>📄</span>
+                  Create module
+                </button>
+                <button 
+                  className="dropdown-item" 
+                  onClick={handleAddLink}
+                  type="button"
+                >
+                  <span>🔗</span>
+                  Add a link
+                </button>
+                <button 
+                  className="dropdown-item" 
+                  onClick={handleUploadFile}
+                  type="button"
+                >
+                  <span>📁</span>
+                  Upload
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
