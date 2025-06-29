@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 
-const Header = ({ searchTerm, onSearchChange, onCreateModule, onCreateStandaloneItem }) => {
+const Header = ({ searchTerm, onSearchChange, onCreateModule, onAddResource }) => {
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -35,12 +35,12 @@ const Header = ({ searchTerm, onSearchChange, onCreateModule, onCreateStandalone
   }
 
   const handleAddLink = () => {
-    onCreateStandaloneItem('link')
+    onAddResource('link')
     setShowDropdown(false)
   }
 
   const handleUploadFile = () => {
-    onCreateStandaloneItem('file')
+    onAddResource('file')
     setShowDropdown(false)
   }
 

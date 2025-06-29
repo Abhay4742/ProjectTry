@@ -62,7 +62,6 @@ const ModuleCard = ({
       if (item.type === 'standalone-item') {
         onDropItem(item.id, module.id)
       } else if (item.type === 'resource' && item.sourceModuleId !== module.id) {
-        // Move resource from one module to another
         onMoveResource(item.id, item.sourceModuleId, module.id)
       }
     },
@@ -104,48 +103,42 @@ const ModuleCard = ({
     }
   ]
 
-  const handleAddLink = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log('Adding link to module:', module.id)
-    onAddResource(module.id, 'link')
-    setShowAddMenu(false)
-  }
-
-  const handleAddFile = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    console.log('Adding file to module:', module.id)
-    onAddResource(module.id, 'file')
-    setShowAddMenu(false)
-  }
-
-  const addMenuItems = [
-    {
-      label: 'Add a link',
-      icon: '🔗',
-      onClick: handleAddLink
-    },
-    {
-      label: 'Upload file',
-      icon: '📁',
-      onClick: handleAddFile
-    }
-  ]
-
   const handleResourceMove = (dragIndex, hoverIndex) => {
     const draggedResource = module.resources[dragIndex]
     const newResources = [...module.resources]
     newResources.splice(dragIndex, 1)
     newResources.splice(hoverIndex, 0, draggedResource)
     
-    // Update the module with new resource order
-    const updatedModule = { ...module, resources: newResources }
-    // We need to call a function to update the module
-    // For now, we'll handle this through the parent component
     if (onMoveResource) {
       onMoveResource(dragIndex, hoverIndex, module.id)
     }
+  }
+
+  const handleAddItemClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Add item button clicked for module:', module.id)
+    setShowAddMenu(prev => {
+      console.log('Setting showAddMenu from', prev, 'to', !prev)
+      return !prev
+    })
+  }
+
+  const handleAddLink = () => {
+    console.log('Adding link to module:', module.id)
+    onAddResource(module.id, 'link')
+    setShowAddMenu(false)
+  }
+
+  const handleAddFile = () => {
+    console.log('Adding file to module:', module.id)
+    onAddResource(module.id, 'file')
+    setShowAddMenu(false)
+  }
+
+  const handleCloseAddMenu = () => {
+    console.log('Closing add menu for module:', module.id)
+    setShowAddMenu(false)
   }
 
   return (
@@ -230,25 +223,32 @@ const ModuleCard = ({
           <div className="add-item-container">
             <button 
               className="add-resource-button"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                console.log('Add item button clicked, current state:', showAddMenu)
-                setShowAddMenu(prev => !prev)
-              }}
+              onClick={handleAddItemClick}
+              type="button"
             >
               <span>+</span>
               Add item
             </button>
             
             {showAddMenu && (
-              <DropdownMenu 
-                items={addMenuItems}
-                onClose={() => {
-                  console.log('Closing add menu')
-                  setShowAddMenu(false)
-                }}
-              />
+              <div className="dropdown-menu">
+                <button
+                  className="dropdown-item"
+                  onClick={handleAddLink}
+                  type="button"
+                >
+                  <span>🔗</span>
+                  Add a link
+                </button>
+                <button
+                  className="dropdown-item"
+                  onClick={handleAddFile}
+                  type="button"
+                >
+                  <span>📁</span>
+                  Upload file
+                </button>
+              </div>
             )}
           </div>
         </div>
