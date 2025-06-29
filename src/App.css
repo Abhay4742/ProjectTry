@@ -353,9 +353,10 @@ body {
   transform: rotate(180deg);
 }
 
+/* CRITICAL: Menu container with highest z-index */
 .menu-container {
   position: relative;
-  z-index: 1001; /* Higher z-index to ensure dropdown appears above everything */
+  z-index: 9999; /* MAXIMUM z-index to ensure it's always on top */
 }
 
 .menu-button {
@@ -730,7 +731,7 @@ body {
   cursor: not-allowed;
 }
 
-/* Dropdown Menu - CRITICAL: High z-index to appear above module content */
+/* CRITICAL: Dropdown Menu with MAXIMUM z-index to appear above everything */
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -738,12 +739,15 @@ body {
   background: white;
   border: 1px solid #dee2e6;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1002; /* VERY HIGH z-index to ensure it appears above everything */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); /* Enhanced shadow for better visibility */
+  z-index: 99999; /* MAXIMUM z-index - higher than everything else */
   min-width: 160px;
   padding: 8px 0;
   margin-top: 4px;
   animation: fadeIn 0.2s ease;
+  /* Force the dropdown to appear above all content */
+  transform: translateZ(0); /* Create new stacking context */
+  will-change: transform; /* Optimize for animations */
 }
 
 @keyframes fadeIn {
