@@ -4,15 +4,18 @@ import ModuleList from './ModuleList'
 import EmptyState from './EmptyState'
 import ModuleModal from './ModuleModal'
 import ResourceModal from './ResourceModal'
+import StandaloneItem from './StandaloneItem'
 
 const CourseBuilder = () => {
   const [modules, setModules] = useState([])
+  const [standaloneItems, setStandaloneItems] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [isModuleModalOpen, setIsModuleModalOpen] = useState(false)
   const [isResourceModalOpen, setIsResourceModalOpen] = useState(false)
   const [editingModule, setEditingModule] = useState(null)
   const [selectedModuleId, setSelectedModuleId] = useState(null)
   const [resourceType, setResourceType] = useState('link')
+  const [isStandaloneMode, setIsStandaloneMode] = useState(false)
 
   const handleCreateModule = () => {
     setEditingModule(null)
@@ -47,47 +50,47 @@ const CourseBuilder = () => {
     setEditingModule(null)
   }
 
+  // Header add functionality - creates standalone items
   const handleAddResourceFromHeader = (type) => {
-    if (modules.length === 0) {
-      // If no modules exist, create one first
-      const newModule = {
-        id: Date.now().toString(),
-        name: 'New Module',
-        resources: []
-      }
-      setModules([newModule])
-      setSelectedModuleId(newModule.id)
-    } else {
-      // Use the first module
-      setSelectedModuleId(modules[0].id)
-    }
+    setSelectedModuleId(null)
     setResourceType(type)
+    setIsStandaloneMode(true)
     setIsResourceModalOpen(true)
   }
 
+  // Module add functionality - adds directly to module
   const handleAddResource = (moduleId, type) => {
     console.log('CourseBuilder: Adding resource to module:', moduleId, 'type:', type)
     setSelectedModuleId(moduleId)
     setResourceType(type)
+    setIsStandaloneMode(false)
     setIsResourceModalOpen(true)
   }
 
   const handleSaveResource = (resourceData) => {
-    console.log('CourseBuilder: Saving resource:', resourceData, 'to module:', selectedModuleId)
+    console.log('CourseBuilder: Saving resource:', resourceData, 'standalone mode:', isStandaloneMode)
+    
     const newResource = {
       id: Date.now().toString(),
       type: resourceType,
       ...resourceData
     }
 
-    setModules(modules.map(module => 
-      module.id === selectedModuleId
-        ? { ...module, resources: [...module.resources, newResource] }
-        : module
-    ))
+    if (isStandaloneMode) {
+      // Add as standalone item
+      setStandaloneItems([...standaloneItems, newResource])
+    } else {
+      // Add directly to module
+      setModules(modules.map(module => 
+        module.id === selectedModuleId
+          ? { ...module, resources: [...module.resources, newResource] }
+          : module
+      ))
+    }
 
     setIsResourceModalOpen(false)
     setSelectedModuleId(null)
+    setIsStandaloneMode(false)
   }
 
   const handleDeleteResource = (moduleId, resourceId) => {
@@ -96,6 +99,25 @@ const CourseBuilder = () => {
         ? { ...module, resources: module.resources.filter(r => r.id !== resourceId) }
         : module
     ))
+  }
+
+  const handleDeleteStandaloneItem = (itemId) => {
+    setStandaloneItems(standaloneItems.filter(item => item.id !== itemId))
+  }
+
+  const handleDropItemToModule = (itemId, moduleId) => {
+    const item = standaloneItems.find(item => item.id === itemId)
+    if (item) {
+      // Add item to module
+      setModules(modules.map(module => 
+        module.id === moduleId
+          ? { ...module, resources: [...module.resources, item] }
+          : module
+      ))
+      
+      // Remove from standalone items
+      setStandaloneItems(standaloneItems.filter(item => item.id !== itemId))
+    }
   }
 
   const handleMoveModule = (dragIndex, hoverIndex) => {
@@ -135,6 +157,16 @@ const CourseBuilder = () => {
     return moduleNameMatch || resourceMatch
   })
 
+  // Filter standalone items based on search term
+  const filteredStandaloneItems = standaloneItems.filter(item => {
+    if (!searchTerm.trim()) return true
+    
+    const searchLower = searchTerm.toLowerCase()
+    return item.name.toLowerCase().includes(searchLower) ||
+           (item.url && item.url.toLowerCase().includes(searchLower)) ||
+           (item.fileName && item.fileName.toLowerCase().includes(searchLower))
+  })
+
   return (
     <div className="course-builder">
       <Header 
@@ -143,6 +175,22 @@ const CourseBuilder = () => {
         onCreateModule={handleCreateModule}
         onAddResource={handleAddResourceFromHeader}
       />
+
+      {/* Standalone Items Section */}
+      {standaloneItems.length > 0 && (
+        <div className="standalone-items-section">
+          <h3 className="standalone-items-title">Items to be added to modules</h3>
+          <div className="standalone-items-list">
+            {filteredStandaloneItems.map(item => (
+              <StandaloneItem
+                key={item.id}
+                item={item}
+                onDelete={() => handleDeleteStandaloneItem(item.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {modules.length === 0 ? (
         <EmptyState onCreateModule={handleCreateModule} />
@@ -166,6 +214,7 @@ const CourseBuilder = () => {
           onDeleteResource={handleDeleteResource}
           onMoveModule={handleMoveModule}
           onMoveResource={handleMoveResource}
+          onDropItem={handleDropItemToModule}
         />
       )}
 
@@ -187,6 +236,7 @@ const CourseBuilder = () => {
           onClose={() => {
             setIsResourceModalOpen(false)
             setSelectedModuleId(null)
+            setIsStandaloneMode(false)
           }}
         />
       )}

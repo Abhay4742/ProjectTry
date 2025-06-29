@@ -8,7 +8,8 @@ const ModuleList = ({
   onAddResource, 
   onDeleteResource,
   onMoveModule,
-  onMoveResource
+  onMoveResource,
+  onDropItem
 }) => {
   return (
     <div className="modules-list">
@@ -23,6 +24,7 @@ const ModuleList = ({
           onDeleteResource={onDeleteResource}
           onMove={onMoveModule}
           onMoveResource={onMoveResource}
+          onDropItem={onDropItem}
         />
       ))}
     </div>

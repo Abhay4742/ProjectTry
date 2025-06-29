@@ -104,11 +104,6 @@ const ModuleCard = ({
   ]
 
   const handleResourceMove = (dragIndex, hoverIndex) => {
-    const draggedResource = module.resources[dragIndex]
-    const newResources = [...module.resources]
-    newResources.splice(dragIndex, 1)
-    newResources.splice(hoverIndex, 0, draggedResource)
-    
     if (onMoveResource) {
       onMoveResource(dragIndex, hoverIndex, module.id)
     }
@@ -125,19 +120,14 @@ const ModuleCard = ({
   }
 
   const handleAddLink = () => {
-    console.log('Adding link to module:', module.id)
+    console.log('Adding link directly to module:', module.id)
     onAddResource(module.id, 'link')
     setShowAddMenu(false)
   }
 
   const handleAddFile = () => {
-    console.log('Adding file to module:', module.id)
+    console.log('Adding file directly to module:', module.id)
     onAddResource(module.id, 'file')
-    setShowAddMenu(false)
-  }
-
-  const handleCloseAddMenu = () => {
-    console.log('Closing add menu for module:', module.id)
     setShowAddMenu(false)
   }
 
