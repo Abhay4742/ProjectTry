@@ -60,6 +60,10 @@
   font-size: 16px;
 }
 
+.add-dropdown {
+  position: relative;
+}
+
 .add-button {
   background-color: #dc3545;
   color: white;
@@ -77,6 +81,11 @@
 
 .add-button:hover {
   background-color: #c82333;
+}
+
+.dropdown-arrow {
+  font-size: 10px;
+  margin-left: 4px;
 }
 
 /* Empty State */
@@ -152,7 +161,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
   border-bottom: 1px solid #f8f9fa;
 }
 
@@ -160,16 +168,21 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
+  flex: 1;
 }
 
 .module-drag-handle {
-  cursor: grab;
   color: #6c757d;
   font-size: 18px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
-.module-drag-handle:active {
-  cursor: grabbing;
+.module-drag-handle:hover {
+  background-color: #f8f9fa;
+  color: #212529;
 }
 
 .module-title {
@@ -495,6 +508,18 @@
   min-width: 160px;
   padding: 8px 0;
   margin-top: 4px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdown-item {
@@ -576,5 +601,10 @@
 
   .resource-actions {
     align-self: flex-end;
+  }
+
+  .dropdown-menu {
+    right: auto;
+    left: 0;
   }
 }

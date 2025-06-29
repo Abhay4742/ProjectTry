@@ -47,6 +47,24 @@ const CourseBuilder = () => {
     setEditingModule(null)
   }
 
+  const handleAddResourceFromHeader = (type) => {
+    if (modules.length === 0) {
+      // If no modules exist, create one first
+      const newModule = {
+        id: Date.now().toString(),
+        name: 'New Module',
+        resources: []
+      }
+      setModules([newModule])
+      setSelectedModuleId(newModule.id)
+    } else {
+      // Use the first module
+      setSelectedModuleId(modules[0].id)
+    }
+    setResourceType(type)
+    setIsResourceModalOpen(true)
+  }
+
   const handleAddResource = (moduleId, type) => {
     setSelectedModuleId(moduleId)
     setResourceType(type)
@@ -86,9 +104,22 @@ const CourseBuilder = () => {
     setModules(newModules)
   }
 
-  const filteredModules = modules.filter(module =>
-    module.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  // Filter modules based on search term
+  const filteredModules = modules.filter(module => {
+    if (!searchTerm.trim()) return true
+    
+    const searchLower = searchTerm.toLowerCase()
+    const moduleNameMatch = module.name.toLowerCase().includes(searchLower)
+    
+    // Also search in resources
+    const resourceMatch = module.resources?.some(resource => 
+      resource.name.toLowerCase().includes(searchLower) ||
+      (resource.url && resource.url.toLowerCase().includes(searchLower)) ||
+      (resource.fileName && resource.fileName.toLowerCase().includes(searchLower))
+    )
+    
+    return moduleNameMatch || resourceMatch
+  })
 
   return (
     <div className="course-builder">
@@ -96,10 +127,22 @@ const CourseBuilder = () => {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         onCreateModule={handleCreateModule}
+        onAddResource={handleAddResourceFromHeader}
       />
 
       {modules.length === 0 ? (
         <EmptyState onCreateModule={handleCreateModule} />
+      ) : filteredModules.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">🔍</div>
+          <h2 className="empty-state-title">No results found</h2>
+          <p className="empty-state-description">
+            Try adjusting your search terms or create a new module
+          </p>
+          <button className="empty-state-button" onClick={handleCreateModule}>
+            Create new module
+          </button>
+        </div>
       ) : (
         <ModuleList
           modules={filteredModules}

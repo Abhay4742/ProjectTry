@@ -14,7 +14,9 @@ const ModuleCard = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [showAddMenu, setShowAddMenu] = useState(false)
   const ref = useRef(null)
+  const dragRef = useRef(null)
 
   const [{ handlerId }, drop] = useDrop({
     accept: 'module',
@@ -52,7 +54,7 @@ const ModuleCard = ({
     },
   })
 
-  const [{ isDragging }, drag] = useDrag({
+  const [{ isDragging }, drag, preview] = useDrag({
     type: 'module',
     item: () => {
       return { id: module.id, index }
@@ -62,9 +64,12 @@ const ModuleCard = ({
     }),
   })
 
-  const opacity = isDragging ? 0.4 : 1
-  drag(drop(ref))
+  // Connect drag to the drag handle only
+  drag(dragRef)
+  // Connect drop to the entire card
+  drop(ref)
 
+  const opacity = isDragging ? 0.4 : 1
   const resourceCount = module.resources?.length || 0
 
   const menuItems = [
@@ -87,6 +92,25 @@ const ModuleCard = ({
     }
   ]
 
+  const addMenuItems = [
+    {
+      label: 'Add a link',
+      icon: '🔗',
+      onClick: () => {
+        onAddResource(module.id, 'link')
+        setShowAddMenu(false)
+      }
+    },
+    {
+      label: 'Upload file',
+      icon: '📁',
+      onClick: () => {
+        onAddResource(module.id, 'file')
+        setShowAddMenu(false)
+      }
+    }
+  ]
+
   return (
     <div 
       ref={ref} 
@@ -94,9 +118,15 @@ const ModuleCard = ({
       style={{ opacity }}
       data-handler-id={handlerId}
     >
-      <div className="module-header" onClick={() => setIsExpanded(!isExpanded)}>
-        <div className="module-info">
-          <span className="module-drag-handle">⋮⋮</span>
+      <div className="module-header">
+        <div className="module-info" onClick={() => setIsExpanded(!isExpanded)}>
+          <span 
+            ref={dragRef}
+            className="module-drag-handle"
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          >
+            ⋮⋮
+          </span>
           <div>
             <h3 className="module-title">{module.name}</h3>
             <p className="module-subtitle">
@@ -139,7 +169,7 @@ const ModuleCard = ({
 
       {isExpanded && (
         <div className="module-content">
-          {module.resources && module.resources.length > 0 ? (
+          {module.resources && module.resources.length > 0 && (
             <div className="module-resources">
               {module.resources.map(resource => (
                 <ResourceItem
@@ -149,28 +179,60 @@ const ModuleCard = ({
                 />
               ))}
             </div>
-          ) : (
-            <p style={{ textAlign: 'center', color: '#6c757d', margin: '20px 0' }}>
+          )}
+          
+          {(!module.resources || module.resources.length === 0) && (
+            <p style={{ 
+              textAlign: 'center', 
+              color: '#6c757d', 
+              margin: '20px 0',
+              fontStyle: 'italic'
+            }}>
               No content added to this module yet.
             </p>
           )}
           
-          <div className="add-resource-button" onClick={() => setShowMenu(false)}>
-            <div style={{ marginBottom: '12px' }}>
-              <button 
-                className="button button-secondary"
-                onClick={() => onAddResource(module.id, 'link')}
-                style={{ marginRight: '8px' }}
-              >
-                🔗 Add a link
-              </button>
-              <button 
-                className="button button-secondary"
-                onClick={() => onAddResource(module.id, 'file')}
-              >
-                📁 Upload file
-              </button>
-            </div>
+          <div style={{ position: 'relative', textAlign: 'center', marginTop: '20px' }}>
+            <button 
+              className="add-resource-button"
+              onClick={() => setShowAddMenu(!showAddMenu)}
+              style={{
+                background: 'white',
+                border: '2px dashed #dee2e6',
+                borderRadius: '8px',
+                padding: '16px',
+                cursor: 'pointer',
+                color: '#6c757d',
+                fontSize: '14px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                width: '100%',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = '#0d6efd'
+                e.target.style.backgroundColor = '#f8f9fa'
+                e.target.style.color = '#0d6efd'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = '#dee2e6'
+                e.target.style.backgroundColor = 'white'
+                e.target.style.color = '#6c757d'
+              }}
+            >
+              <span>+</span>
+              Add item
+            </button>
+            
+            {showAddMenu && (
+              <DropdownMenu 
+                items={addMenuItems}
+                onClose={() => setShowAddMenu(false)}
+              />
+            )}
           </div>
         </div>
       )}
