@@ -100,22 +100,28 @@ const ModuleCard = ({
     }
   ]
 
+  const handleAddLink = () => {
+    console.log('Adding link to module:', module.id)
+    onAddResource(module.id, 'link')
+    setShowAddMenu(false)
+  }
+
+  const handleAddFile = () => {
+    console.log('Adding file to module:', module.id)
+    onAddResource(module.id, 'file')
+    setShowAddMenu(false)
+  }
+
   const addMenuItems = [
     {
       label: 'Add a link',
       icon: '🔗',
-      onClick: () => {
-        onAddResource(module.id, 'link')
-        setShowAddMenu(false)
-      }
+      onClick: handleAddLink
     },
     {
       label: 'Upload file',
       icon: '📁',
-      onClick: () => {
-        onAddResource(module.id, 'file')
-        setShowAddMenu(false)
-      }
+      onClick: handleAddFile
     }
   ]
 
@@ -190,25 +196,34 @@ const ModuleCard = ({
           )}
           
           {(!module.resources || module.resources.length === 0) && (
-            <p className="empty-module-message">
+            <div className="empty-module-message">
               No content added to this module yet. Drag items here or use the button below.
-            </p>
+            </div>
           )}
           
           <div className="add-item-container">
             <button 
               className="add-resource-button"
-              onClick={() => setShowAddMenu(!showAddMenu)}
+              onClick={(e) => {
+                e.stopPropagation()
+                console.log('Add item button clicked, current state:', showAddMenu)
+                setShowAddMenu(!showAddMenu)
+              }}
             >
               <span>+</span>
               Add item
             </button>
             
             {showAddMenu && (
-              <DropdownMenu 
-                items={addMenuItems}
-                onClose={() => setShowAddMenu(false)}
-              />
+              <div style={{ position: 'relative' }}>
+                <DropdownMenu 
+                  items={addMenuItems}
+                  onClose={() => {
+                    console.log('Closing add menu')
+                    setShowAddMenu(false)
+                  }}
+                />
+              </div>
             )}
           </div>
         </div>
