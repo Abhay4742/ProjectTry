@@ -20,7 +20,7 @@ const ModuleCard = ({
   const [showAddMenu, setShowAddMenu] = useState(false)
   const ref = useRef(null)
   const dragRef = useRef(null)
-  const addMenuRef = useRef(null)
+  const addButtonRef = useRef(null)
 
   const [{ handlerId }, drop] = useDrop({
     accept: ['module', 'standalone-item', 'resource'],
@@ -86,15 +86,23 @@ const ModuleCard = ({
   // Close add menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event) => {
-      if (addMenuRef.current && !addMenuRef.current.contains(event.target)) {
+      if (addButtonRef.current && !addButtonRef.current.contains(event.target)) {
+        setShowAddMenu(false)
+      }
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
         setShowAddMenu(false)
       }
     }
 
     if (showAddMenu) {
       document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('keydown', handleEscape)
       return () => {
         document.removeEventListener('mousedown', handleClickOutside)
+        document.removeEventListener('keydown', handleEscape)
       }
     }
   }, [showAddMenu])
@@ -131,13 +139,24 @@ const ModuleCard = ({
     }
   }
 
-  const handleAddLink = () => {
+  const handleAddButtonClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Add item button clicked for module:', module.id)
+    setShowAddMenu(!showAddMenu)
+  }
+
+  const handleAddLink = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     console.log('Adding link to module:', module.id)
     onAddResource(module.id, 'link')
     setShowAddMenu(false)
   }
 
-  const handleAddFile = () => {
+  const handleAddFile = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     console.log('Adding file to module:', module.id)
     onAddResource(module.id, 'file')
     setShowAddMenu(false)
@@ -222,15 +241,10 @@ const ModuleCard = ({
             </div>
           )}
           
-          <div className="add-item-container" ref={addMenuRef}>
+          <div className="add-item-container" ref={addButtonRef}>
             <button 
               className="add-resource-button"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                console.log('Add item button clicked for module:', module.id)
-                setShowAddMenu(!showAddMenu)
-              }}
+              onClick={handleAddButtonClick}
               type="button"
             >
               <span>+</span>
