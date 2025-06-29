@@ -52,6 +52,7 @@ const CourseBuilder = () => {
 
   // Header add functionality - creates standalone items
   const handleAddResourceFromHeader = (type) => {
+    console.log('CourseBuilder: Adding resource from header, type:', type)
     setSelectedModuleId(null)
     setResourceType(type)
     setIsStandaloneMode(true)
@@ -68,7 +69,7 @@ const CourseBuilder = () => {
   }
 
   const handleSaveResource = (resourceData) => {
-    console.log('CourseBuilder: Saving resource:', resourceData, 'standalone mode:', isStandaloneMode)
+    console.log('CourseBuilder: Saving resource:', resourceData, 'standalone mode:', isStandaloneMode, 'moduleId:', selectedModuleId)
     
     const newResource = {
       id: Date.now().toString(),
@@ -78,12 +79,14 @@ const CourseBuilder = () => {
 
     if (isStandaloneMode) {
       // Add as standalone item
+      console.log('Adding as standalone item')
       setStandaloneItems([...standaloneItems, newResource])
     } else {
       // Add directly to module
+      console.log('Adding directly to module:', selectedModuleId)
       setModules(modules.map(module => 
         module.id === selectedModuleId
-          ? { ...module, resources: [...module.resources, newResource] }
+          ? { ...module, resources: [...(module.resources || []), newResource] }
           : module
       ))
     }
@@ -111,7 +114,7 @@ const CourseBuilder = () => {
       // Add item to module
       setModules(modules.map(module => 
         module.id === moduleId
-          ? { ...module, resources: [...module.resources, item] }
+          ? { ...module, resources: [...(module.resources || []), item] }
           : module
       ))
       
@@ -131,7 +134,7 @@ const CourseBuilder = () => {
   const handleMoveResource = (dragIndex, hoverIndex, moduleId) => {
     setModules(modules.map(module => {
       if (module.id === moduleId) {
-        const newResources = [...module.resources]
+        const newResources = [...(module.resources || [])]
         const draggedResource = newResources[dragIndex]
         newResources.splice(dragIndex, 1)
         newResources.splice(hoverIndex, 0, draggedResource)
