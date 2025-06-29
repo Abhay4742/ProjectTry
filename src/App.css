@@ -272,14 +272,14 @@ body {
   gap: 16px;
 }
 
-/* Module Card */
+/* Module Card - CRITICAL: Remove overflow hidden to allow dropdown to appear outside */
 .module-card {
   background: white;
   border: 1px solid #dee2e6;
   border-radius: 12px;
-  overflow: hidden;
+  /* REMOVED: overflow: hidden; - This was preventing dropdown from appearing outside */
   transition: box-shadow 0.2s ease;
-  position: relative; /* Important for containing absolute positioned children */
+  position: relative;
 }
 
 .module-card:hover {
@@ -292,6 +292,9 @@ body {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #f8f9fa;
+  /* CRITICAL: Ensure header doesn't create stacking context issues */
+  position: relative;
+  z-index: 1;
 }
 
 .module-info {
@@ -331,6 +334,9 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  /* CRITICAL: Ensure actions container doesn't interfere with dropdown positioning */
+  position: relative;
+  z-index: 2;
 }
 
 .expand-button {
@@ -353,10 +359,11 @@ body {
   transform: rotate(180deg);
 }
 
-/* CRITICAL: Menu container with highest z-index */
+/* CRITICAL: Menu container with MAXIMUM z-index and proper positioning */
 .menu-container {
   position: relative;
-  z-index: 9999; /* MAXIMUM z-index to ensure it's always on top */
+  /* CRITICAL: Highest z-index to ensure dropdown appears above everything */
+  z-index: 999999;
 }
 
 .menu-button {
@@ -379,7 +386,12 @@ body {
 .module-content {
   padding: 20px;
   background-color: #f8f9fa;
-  position: relative; /* Important for containing absolute positioned children */
+  position: relative;
+  /* CRITICAL: Lower z-index than menu container */
+  z-index: 0;
+  /* CRITICAL: Add border radius to bottom corners only since we removed overflow hidden */
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .module-resources {
@@ -500,8 +512,8 @@ body {
   position: relative;
   text-align: center;
   margin-top: 20px;
-  display: inline-block; /* Changed from block to inline-block */
-  width: auto; /* Allow natural width */
+  display: inline-block;
+  width: auto;
 }
 
 .add-resource-button {
@@ -530,8 +542,8 @@ body {
 /* Add Item Dropdown - positioned to the right and slightly upward */
 .add-item-dropdown {
   position: absolute;
-  top: -8px; /* Move up by 8px to prevent hiding */
-  left: calc(100% + 8px); /* Position to the right of the button */
+  top: -8px;
+  left: calc(100% + 8px);
   background: white;
   border: 1px solid #dee2e6;
   border-radius: 8px;
@@ -540,7 +552,7 @@ body {
   min-width: 140px;
   padding: 4px 0;
   animation: fadeInRight 0.2s ease;
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap;
 }
 
 /* Fallback positioning if dropdown would go outside viewport */
@@ -731,7 +743,7 @@ body {
   cursor: not-allowed;
 }
 
-/* CRITICAL: Dropdown Menu with MAXIMUM z-index to appear above everything */
+/* CRITICAL: Three Dots Dropdown Menu - MAXIMUM z-index and proper positioning */
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -739,15 +751,26 @@ body {
   background: white;
   border: 1px solid #dee2e6;
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); /* Enhanced shadow for better visibility */
-  z-index: 99999; /* MAXIMUM z-index - higher than everything else */
+  /* CRITICAL: Maximum shadow for visibility */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  /* CRITICAL: ABSOLUTE MAXIMUM z-index - higher than everything else */
+  z-index: 999999;
   min-width: 160px;
   padding: 8px 0;
   margin-top: 4px;
   animation: fadeIn 0.2s ease;
-  /* Force the dropdown to appear above all content */
-  transform: translateZ(0); /* Create new stacking context */
-  will-change: transform; /* Optimize for animations */
+  /* CRITICAL: Force the dropdown to appear above all content */
+  transform: translateZ(0);
+  will-change: transform;
+  /* CRITICAL: Ensure dropdown appears outside module boundaries */
+  position: fixed;
+  /* We'll use JavaScript to position this correctly */
+}
+
+/* Alternative positioning for dropdown menu */
+.dropdown-menu.positioned {
+  position: absolute;
+  position: fixed;
 }
 
 @keyframes fadeIn {
@@ -868,6 +891,6 @@ body {
     left: 0;
     right: 0;
     margin-top: 4px;
-    left: calc(100% + 8px); /* Keep to the right even on mobile for better UX */
+    left: calc(100% + 8px);
   }
 }
