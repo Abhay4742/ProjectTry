@@ -108,7 +108,9 @@ const CourseBuilder = () => {
     setStandaloneItems(standaloneItems.filter(item => item.id !== itemId))
   }
 
+  // Move standalone item to module
   const handleDropItemToModule = (itemId, moduleId) => {
+    console.log('Moving standalone item to module:', itemId, moduleId)
     const item = standaloneItems.find(item => item.id === itemId)
     if (item) {
       // Add item to module
@@ -123,6 +125,49 @@ const CourseBuilder = () => {
     }
   }
 
+  // Move resource between modules
+  const handleMoveResourceBetweenModules = (resourceId, sourceModuleId, targetModuleId) => {
+    console.log('Moving resource between modules:', resourceId, 'from:', sourceModuleId, 'to:', targetModuleId)
+    
+    if (sourceModuleId === targetModuleId) {
+      return // Same module, no need to move
+    }
+
+    let resourceToMove = null
+
+    // Find and remove the resource from source module
+    setModules(prevModules => {
+      const updatedModules = prevModules.map(module => {
+        if (module.id === sourceModuleId) {
+          const resource = module.resources.find(r => r.id === resourceId)
+          if (resource) {
+            resourceToMove = resource
+          }
+          return {
+            ...module,
+            resources: module.resources.filter(r => r.id !== resourceId)
+          }
+        }
+        return module
+      })
+
+      // Add the resource to target module
+      if (resourceToMove) {
+        return updatedModules.map(module => {
+          if (module.id === targetModuleId) {
+            return {
+              ...module,
+              resources: [...(module.resources || []), resourceToMove]
+            }
+          }
+          return module
+        })
+      }
+
+      return updatedModules
+    })
+  }
+
   const handleMoveModule = (dragIndex, hoverIndex) => {
     const draggedModule = modules[dragIndex]
     const newModules = [...modules]
@@ -131,7 +176,9 @@ const CourseBuilder = () => {
     setModules(newModules)
   }
 
+  // Reorder resources within the same module
   const handleMoveResource = (dragIndex, hoverIndex, moduleId) => {
+    console.log('Reordering resources within module:', moduleId, 'from index:', dragIndex, 'to index:', hoverIndex)
     setModules(modules.map(module => {
       if (module.id === moduleId) {
         const newResources = [...(module.resources || [])]
@@ -218,6 +265,7 @@ const CourseBuilder = () => {
           onMoveModule={handleMoveModule}
           onMoveResource={handleMoveResource}
           onDropItem={handleDropItemToModule}
+          onMoveResourceBetweenModules={handleMoveResourceBetweenModules}
         />
       )}
 

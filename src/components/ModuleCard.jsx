@@ -12,7 +12,8 @@ const ModuleCard = ({
   onDeleteResource,
   onMove,
   onDropItem,
-  onMoveResource
+  onMoveResource,
+  onMoveResourceBetweenModules
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
@@ -59,10 +60,14 @@ const ModuleCard = ({
       item.index = hoverIndex
     },
     drop(item, monitor) {
+      console.log('Drop detected in module:', module.id, 'item:', item)
+      
       if (item.type === 'standalone-item') {
+        console.log('Dropping standalone item into module')
         onDropItem(item.id, module.id)
       } else if (item.type === 'resource' && item.sourceModuleId !== module.id) {
-        onMoveResource(item.id, item.sourceModuleId, module.id)
+        console.log('Moving resource between modules')
+        onMoveResourceBetweenModules(item.id, item.sourceModuleId, module.id)
       }
     },
   })
