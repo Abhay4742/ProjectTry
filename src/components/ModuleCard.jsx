@@ -122,9 +122,7 @@ const ModuleCard = ({
 
   const handleDeleteModule = () => {
     console.log('Delete module clicked for:', module.id)
-    if (window.confirm(`Are you sure you want to delete "${module.name}"?`)) {
-      onDelete(module.id)
-    }
+    onDelete(module.id)
     setShowMenu(false)
   }
 
