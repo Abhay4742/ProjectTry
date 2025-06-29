@@ -16,14 +16,11 @@ const DropdownMenu = ({ items, onClose }) => {
       }
     }
 
-    // Add a small delay to prevent immediate closing
-    const timer = setTimeout(() => {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('keydown', handleEscape)
-    }, 100)
+    // Add event listeners immediately
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
     
     return () => {
-      clearTimeout(timer)
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('keydown', handleEscape)
     }
@@ -43,6 +40,7 @@ const DropdownMenu = ({ items, onClose }) => {
           key={index}
           className={`dropdown-item ${item.danger ? 'danger' : ''}`}
           onClick={() => handleItemClick(item)}
+          type="button"
         >
           <span>{item.icon}</span>
           {item.label}

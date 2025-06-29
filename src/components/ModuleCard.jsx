@@ -19,6 +19,7 @@ const ModuleCard = ({
   const [showAddMenu, setShowAddMenu] = useState(false)
   const ref = useRef(null)
   const dragRef = useRef(null)
+  const addMenuRef = useRef(null)
 
   const [{ handlerId }, drop] = useDrop({
     accept: ['module', 'standalone-item', 'resource'],
@@ -103,6 +104,27 @@ const ModuleCard = ({
     }
   ]
 
+  const addMenuItems = [
+    {
+      label: 'Add a link',
+      icon: '🔗',
+      onClick: () => {
+        console.log('Adding link to module:', module.id)
+        onAddResource(module.id, 'link')
+        setShowAddMenu(false)
+      }
+    },
+    {
+      label: 'Upload file',
+      icon: '📁',
+      onClick: () => {
+        console.log('Adding file to module:', module.id)
+        onAddResource(module.id, 'file')
+        setShowAddMenu(false)
+      }
+    }
+  ]
+
   const handleResourceMove = (dragIndex, hoverIndex) => {
     if (onMoveResource) {
       onMoveResource(dragIndex, hoverIndex, module.id)
@@ -113,23 +135,25 @@ const ModuleCard = ({
     e.preventDefault()
     e.stopPropagation()
     console.log('Add item button clicked for module:', module.id)
-    setShowAddMenu(prev => {
-      console.log('Setting showAddMenu from', prev, 'to', !prev)
-      return !prev
-    })
+    setShowAddMenu(prev => !prev)
   }
 
-  const handleAddLink = () => {
-    console.log('Adding link directly to module:', module.id)
-    onAddResource(module.id, 'link')
-    setShowAddMenu(false)
-  }
+  // Close add menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (addMenuRef.current && !addMenuRef.current.contains(event.target)) {
+        setShowAddMenu(false)
+      }
+    }
 
-  const handleAddFile = () => {
-    console.log('Adding file directly to module:', module.id)
-    onAddResource(module.id, 'file')
-    setShowAddMenu(false)
-  }
+    if (showAddMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showAddMenu])
 
   return (
     <div 
@@ -210,7 +234,7 @@ const ModuleCard = ({
             </div>
           )}
           
-          <div className="add-item-container">
+          <div className="add-item-container" ref={addMenuRef}>
             <button 
               className="add-resource-button"
               onClick={handleAddItemClick}
@@ -221,24 +245,10 @@ const ModuleCard = ({
             </button>
             
             {showAddMenu && (
-              <div className="dropdown-menu">
-                <button
-                  className="dropdown-item"
-                  onClick={handleAddLink}
-                  type="button"
-                >
-                  <span>🔗</span>
-                  Add a link
-                </button>
-                <button
-                  className="dropdown-item"
-                  onClick={handleAddFile}
-                  type="button"
-                >
-                  <span>📁</span>
-                  Upload file
-                </button>
-              </div>
+              <DropdownMenu 
+                items={addMenuItems}
+                onClose={() => setShowAddMenu(false)}
+              />
             )}
           </div>
         </div>
