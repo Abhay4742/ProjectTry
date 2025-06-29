@@ -20,6 +20,7 @@ const ModuleCard = ({
   const [showAddMenu, setShowAddMenu] = useState(false)
   const ref = useRef(null)
   const dragRef = useRef(null)
+  const addMenuRef = useRef(null)
 
   const [{ handlerId }, drop] = useDrop({
     accept: ['module', 'standalone-item', 'resource'],
@@ -81,6 +82,22 @@ const ModuleCard = ({
       isDragging: monitor.isDragging(),
     }),
   })
+
+  // Close add menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (addMenuRef.current && !addMenuRef.current.contains(event.target)) {
+        setShowAddMenu(false)
+      }
+    }
+
+    if (showAddMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
+    }
+  }, [showAddMenu])
 
   drag(dragRef)
   drop(ref)
@@ -205,7 +222,7 @@ const ModuleCard = ({
             </div>
           )}
           
-          <div className="add-item-container" style={{ position: 'relative' }}>
+          <div className="add-item-container" ref={addMenuRef}>
             <button 
               className="add-resource-button"
               onClick={(e) => {
@@ -221,7 +238,7 @@ const ModuleCard = ({
             </button>
             
             {showAddMenu && (
-              <div className="dropdown-menu" style={{ position: 'absolute', top: '100%', left: '0', right: '0', zIndex: 1000 }}>
+              <div className="add-item-dropdown">
                 <button
                   className="dropdown-item"
                   onClick={handleAddLink}
