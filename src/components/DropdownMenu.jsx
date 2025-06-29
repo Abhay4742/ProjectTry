@@ -29,6 +29,7 @@ const DropdownMenu = ({ items, onClose }) => {
           dropdown.style.top = `${rect.bottom + 4}px`
           dropdown.style.left = `${rect.right - 160}px` // Align right edge with button
           dropdown.style.right = 'auto'
+          dropdown.style.zIndex = '999999'
           
           // Ensure dropdown doesn't go off screen
           const dropdownRect = dropdown.getBoundingClientRect()
@@ -59,11 +60,14 @@ const DropdownMenu = ({ items, onClose }) => {
     }
   }, [onClose])
 
-  const handleItemClick = (item) => {
+  const handleItemClick = (item, event) => {
+    event.preventDefault()
+    event.stopPropagation()
     console.log('Dropdown item clicked:', item.label)
     if (item.onClick) {
       item.onClick()
     }
+    onClose()
   }
 
   return (
@@ -72,7 +76,7 @@ const DropdownMenu = ({ items, onClose }) => {
         <button
           key={index}
           className={`dropdown-item ${item.danger ? 'danger' : ''}`}
-          onClick={() => handleItemClick(item)}
+          onClick={(event) => handleItemClick(item, event)}
           type="button"
         >
           <span>{item.icon}</span>

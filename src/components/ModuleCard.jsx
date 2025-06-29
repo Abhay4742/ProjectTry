@@ -114,22 +114,30 @@ const ModuleCard = ({
   const opacity = isDragging ? 0.4 : 1
   const resourceCount = module.resources?.length || 0
 
+  const handleEditModule = () => {
+    console.log('Edit module clicked for:', module.id)
+    onEdit(module)
+    setShowMenu(false)
+  }
+
+  const handleDeleteModule = () => {
+    console.log('Delete module clicked for:', module.id)
+    if (window.confirm(`Are you sure you want to delete "${module.name}"?`)) {
+      onDelete(module.id)
+    }
+    setShowMenu(false)
+  }
+
   const menuItems = [
     {
       label: 'Edit module name',
       icon: '✏️',
-      onClick: () => {
-        onEdit(module)
-        setShowMenu(false)
-      }
+      onClick: handleEditModule
     },
     {
       label: 'Delete',
       icon: '🗑️',
-      onClick: () => {
-        onDelete(module.id)
-        setShowMenu(false)
-      },
+      onClick: handleDeleteModule,
       danger: true
     }
   ]
@@ -161,6 +169,13 @@ const ModuleCard = ({
     console.log('Adding file to module:', module.id)
     onAddResource(module.id, 'file')
     setShowAddMenu(false)
+  }
+
+  const handleMenuClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Menu button clicked, current state:', showMenu)
+    setShowMenu(!showMenu)
   }
 
   return (
@@ -203,10 +218,8 @@ const ModuleCard = ({
           <div className="menu-container">
             <button 
               className="menu-button"
-              onClick={(e) => {
-                e.stopPropagation()
-                setShowMenu(!showMenu)
-              }}
+              onClick={handleMenuClick}
+              type="button"
             >
               ⋮
             </button>
