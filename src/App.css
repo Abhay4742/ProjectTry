@@ -24,25 +24,26 @@
   width: 100%;
 }
 
-/* Course Outline Sidebar */
+/* Course Outline Sidebar - RIGHT SIDE */
 .course-outline {
-  width: 280px;
+  width: 300px;
   background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 12px;
-  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
   height: fit-content;
   position: sticky;
   top: 24px;
+  order: 2; /* Ensures it appears on the right */
 }
 
 .course-outline-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  color: #212529;
-  margin-bottom: 16px;
+  color: #374151;
+  margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .course-outline-list {
@@ -52,29 +53,46 @@
 }
 
 .course-outline-item {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .course-outline-link {
   display: block;
-  padding: 8px 12px;
-  color: #6c757d;
+  padding: 12px 16px;
+  color: #6b7280;
   text-decoration: none;
   border-radius: 6px;
   font-size: 14px;
+  font-weight: 500;
   transition: all 0.2s ease;
   cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  position: relative;
 }
 
 .course-outline-link:hover {
-  background-color: #f8f9fa;
-  color: #212529;
+  background-color: #f3f4f6;
+  color: #374151;
 }
 
 .course-outline-link.active {
-  background-color: #e7f3ff;
-  color: #0d6efd;
-  font-weight: 500;
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.course-outline-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: #2563eb;
+  border-radius: 0 2px 2px 0;
 }
 
 /* Standalone Items Section */
@@ -325,6 +343,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  order: 1; /* Ensures modules appear on the left */
 }
 
 /* Module Card */
@@ -904,6 +923,10 @@
     position: static;
     order: -1;
   }
+  
+  .modules-list {
+    order: 0;
+  }
 }
 
 @media (max-width: 768px) {
@@ -916,6 +939,7 @@
     width: 100%;
     position: static;
     margin-bottom: 20px;
+    order: -1;
   }
 
   .header {
