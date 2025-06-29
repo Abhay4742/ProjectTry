@@ -58,6 +58,7 @@ const CourseBuilder = () => {
 
   // Add resource to specific module
   const handleAddResource = (moduleId, type) => {
+    console.log('Adding resource to module:', moduleId, 'type:', type)
     setSelectedModuleId(moduleId)
     setResourceType(type)
     setIsResourceModalOpen(true)
@@ -121,6 +122,53 @@ const CourseBuilder = () => {
     }
   }
 
+  // Handle moving resources within a module or between modules
+  const handleMoveResource = (dragIndex, hoverIndex, moduleId) => {
+    setModules(modules.map(module => {
+      if (module.id === moduleId) {
+        const newResources = [...module.resources]
+        const draggedResource = newResources[dragIndex]
+        newResources.splice(dragIndex, 1)
+        newResources.splice(hoverIndex, 0, draggedResource)
+        return { ...module, resources: newResources }
+      }
+      return module
+    }))
+  }
+
+  // Handle moving resource between modules
+  const handleMoveResourceBetweenModules = (resourceId, sourceModuleId, targetModuleId) => {
+    let resourceToMove = null
+    
+    // Find and remove resource from source module
+    setModules(prevModules => {
+      const updatedModules = prevModules.map(module => {
+        if (module.id === sourceModuleId) {
+          const resource = module.resources.find(r => r.id === resourceId)
+          if (resource) {
+            resourceToMove = resource
+          }
+          return {
+            ...module,
+            resources: module.resources.filter(r => r.id !== resourceId)
+          }
+        }
+        return module
+      })
+
+      // Add resource to target module
+      return updatedModules.map(module => {
+        if (module.id === targetModuleId && resourceToMove) {
+          return {
+            ...module,
+            resources: [...module.resources, resourceToMove]
+          }
+        }
+        return module
+      })
+    })
+  }
+
   // Filter modules and standalone items based on search term
   const filteredModules = modules.filter(module => {
     if (!searchTerm.trim()) return true
@@ -182,7 +230,7 @@ const CourseBuilder = () => {
                   <StandaloneItem
                     key={item.id}
                     item={item}
-                    onDelete={handleDeleteStandaloneItem}
+                    onDelete={() => handleDeleteStandaloneItem(item.id)}
                   />
                 ))}
               </div>
@@ -198,6 +246,7 @@ const CourseBuilder = () => {
             onDeleteResource={handleDeleteResource}
             onMoveModule={handleMoveModule}
             onDropItem={handleDropItemIntoModule}
+            onMoveResource={handleMoveResourceBetweenModules}
           />
         </div>
       )}

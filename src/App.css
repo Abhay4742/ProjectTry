@@ -392,6 +392,21 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+}
+
+.resource-drag-handle {
+  color: #6c757d;
+  font-size: 14px;
+  cursor: grab;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.resource-drag-handle:hover {
+  background-color: #f8f9fa;
+  color: #212529;
 }
 
 .resource-icon {

@@ -11,7 +11,8 @@ const ModuleCard = ({
   onAddResource, 
   onDeleteResource,
   onMove,
-  onDropItem
+  onDropItem,
+  onMoveResource
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
@@ -20,15 +21,15 @@ const ModuleCard = ({
   const dragRef = useRef(null)
 
   const [{ handlerId }, drop] = useDrop({
-    accept: ['module', 'standalone-item'],
+    accept: ['module', 'standalone-item', 'resource'],
     collect(monitor) {
       return {
         handlerId: monitor.getHandlerId(),
       }
     },
     hover(item, monitor) {
-      if (item.type === 'standalone-item') {
-        return // Don't handle hover for standalone items
+      if (item.type === 'standalone-item' || item.type === 'resource') {
+        return // Don't handle hover for items
       }
 
       if (!ref.current) {
@@ -60,6 +61,9 @@ const ModuleCard = ({
     drop(item, monitor) {
       if (item.type === 'standalone-item') {
         onDropItem(item.id, module.id)
+      } else if (item.type === 'resource' && item.sourceModuleId !== module.id) {
+        // Move resource from one module to another
+        onMoveResource(item.id, item.sourceModuleId, module.id)
       }
     },
   })
@@ -100,13 +104,17 @@ const ModuleCard = ({
     }
   ]
 
-  const handleAddLink = () => {
+  const handleAddLink = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     console.log('Adding link to module:', module.id)
     onAddResource(module.id, 'link')
     setShowAddMenu(false)
   }
 
-  const handleAddFile = () => {
+  const handleAddFile = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     console.log('Adding file to module:', module.id)
     onAddResource(module.id, 'file')
     setShowAddMenu(false)
@@ -124,6 +132,21 @@ const ModuleCard = ({
       onClick: handleAddFile
     }
   ]
+
+  const handleResourceMove = (dragIndex, hoverIndex) => {
+    const draggedResource = module.resources[dragIndex]
+    const newResources = [...module.resources]
+    newResources.splice(dragIndex, 1)
+    newResources.splice(hoverIndex, 0, draggedResource)
+    
+    // Update the module with new resource order
+    const updatedModule = { ...module, resources: newResources }
+    // We need to call a function to update the module
+    // For now, we'll handle this through the parent component
+    if (onMoveResource) {
+      onMoveResource(dragIndex, hoverIndex, module.id)
+    }
+  }
 
   return (
     <div 
@@ -185,11 +208,14 @@ const ModuleCard = ({
         <div className="module-content">
           {module.resources && module.resources.length > 0 && (
             <div className="module-resources">
-              {module.resources.map(resource => (
+              {module.resources.map((resource, resourceIndex) => (
                 <ResourceItem
                   key={resource.id}
                   resource={resource}
+                  index={resourceIndex}
+                  moduleId={module.id}
                   onDelete={() => onDeleteResource(module.id, resource.id)}
+                  onMove={handleResourceMove}
                 />
               ))}
             </div>
@@ -205,9 +231,10 @@ const ModuleCard = ({
             <button 
               className="add-resource-button"
               onClick={(e) => {
+                e.preventDefault()
                 e.stopPropagation()
                 console.log('Add item button clicked, current state:', showAddMenu)
-                setShowAddMenu(!showAddMenu)
+                setShowAddMenu(prev => !prev)
               }}
             >
               <span>+</span>
@@ -215,15 +242,13 @@ const ModuleCard = ({
             </button>
             
             {showAddMenu && (
-              <div style={{ position: 'relative' }}>
-                <DropdownMenu 
-                  items={addMenuItems}
-                  onClose={() => {
-                    console.log('Closing add menu')
-                    setShowAddMenu(false)
-                  }}
-                />
-              </div>
+              <DropdownMenu 
+                items={addMenuItems}
+                onClose={() => {
+                  console.log('Closing add menu')
+                  setShowAddMenu(false)
+                }}
+              />
             )}
           </div>
         </div>
